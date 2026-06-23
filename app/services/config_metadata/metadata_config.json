@@ -1,0 +1,16 @@
+{
+  "ticker_mappings": {
+    "JPM": "JPM",
+    "JPMorgan": "JPM",
+    "Chase": "JPM",
+    "JP Morgan": "JPM",
+    "Apple": "AAPL",
+    "AAPL": "AAPL",
+    "Mac": "AAPL",
+    "iPhone maker": "AAPL",
+    "Microsoft": "MSFT",
+    "MSFT": "MSFT",
+    "Windows maker": "MSFT"
+  },
+  "valid_years": ["2020", "2021", "2022", "2023", "2024", "2025", "2026"]
+}

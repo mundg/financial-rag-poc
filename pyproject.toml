@@ -1,0 +1,27 @@
+[project]
+name = "rag-poc"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "datasets>=5.0.0",
+    "google>=3.0.0",
+    "google-auth>=2.55.0",
+    "gradio>=6.19.0",
+    "ipykernel>=7.3.0",
+    "langchain-core>=1.4.8",
+    "langchain-experimental>=0.4.2",
+    "langchain-ollama>=1.1.0",
+    "llama-index>=0.14.22",
+    "llama-index-embeddings-google-genai>=0.5.1",
+    "llama-index-embeddings-ollama>=0.9.0",
+    "llama-index-embeddings-vertex>=0.5.0",
+    "llama-index-llms-ollama>=0.10.1",
+    "llama-index-llms-vertex>=0.7.0",
+    "ollama>=0.6.2",
+    "pandas>=3.0.3",
+    "psycopg2>=2.9.12",
+    "sqlalchemy>=2.0.51",
+    "vertexai>=1.71.1",
+]
