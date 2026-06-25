@@ -9,7 +9,7 @@ PROMPT_LIMIT = 25
 def execute_gradio_pipeline(user_message, chat_history):
     global PROMPT_COUNT
     
-    # 🚨 1. THE GATEKEEPER CHECK
+    # 1. THE GATEKEEPER CHECK
     if PROMPT_COUNT >= PROMPT_LIMIT:
         warning_message = "..."
         chat_history.append({"role": "user", "content": user_message})
@@ -19,7 +19,7 @@ def execute_gradio_pipeline(user_message, chat_history):
         return
     
     PROMPT_COUNT += 1
-    print(f"📈 Cloud Prompt Initiated. Allocation: {PROMPT_COUNT}/{PROMPT_LIMIT}")
+    print(f"Cloud Prompt Initiated. Allocation: {PROMPT_COUNT}/{PROMPT_LIMIT}")
 
     pipeline_result = workflow.answer_query(user_message)
     chat_history.append({"role": "user", "content": user_message})

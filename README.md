@@ -27,18 +27,20 @@ flowchart TD
     
     %% Pathway A: Chat
     Intent -- "CHAT" --> ChatPath["Compile Conversation History"]
-    ChatPath --> ChatLLM["Generate Conversational Response via Gemini"]
-    ChatLLM --> UpdateHist1["Update Chat History Memory"]
+    ChatPath --> ModelArmorHistoryInput["Model Armor: Input Filter"]
+    ModelArmorHistoryInput --> ChatLLM["Generate Conversational Response via Gemini"]
+    ChatLLM --> ModelArmorHistoryOutput["Model Armor: Output Filter"]
+    ModelArmorHistoryOutput --> UpdateHist1["Update Chat History Memory"]
     UpdateHist1 --> End([Return Response to User])
 
     %% Pathway B: RAG
-    Intent  --> Extract["Get Metadata Filters"]
+    Intent -- "RAG" --> Extract["Get Metadata Filters"]
     
     %% Metadata Parsing Strategy
     Extract --> RegCheck{"Regex Match Found in Config Map?"}
     RegCheck -- "Yes" --> SetFilters["Extract and Bind Filters Directly"]
-    RegCheck -- "No" --> LLMParse["Invoke Gemini for Metadata Extraction (JSON)"]
-    
+    RegCheck -- "No" --> LLMModelInputMetadata["Model Armor: Input Filter"]
+    LLMModelInputMetadata  --> LLMParse["Invoke Gemini for Metadata Extraction (JSON)"]
     
     LLMParse --> TryParse{"JSON Successfully Parsed?"}
     TryParse -- "Yes" --> SetFilters
@@ -51,8 +53,8 @@ flowchart TD
     Embed --> SQLQuery[(Execute SQL Query against financial_analysis_chunks)]
     
     subgraph "pgvector Retrieval with Context Stitching"
-        QueryLogic --> FilterLogic["Apply Metadata Filters for Tickers and Fiscal Years"]
         SQLQuery --> QueryLogic["Compute Cosine Distance using vector operator"]
+        QueryLogic --> FilterLogic["Apply Metadata Filters for Tickers and Fiscal Years"]
         FilterLogic --> ContextStitch["LEFT JOIN Neighbor Nodes (Prior and Subsequent Chunks)"]
         ContextStitch --> Fetch["Fetch Top-K Rows"]
     end
@@ -62,9 +64,11 @@ flowchart TD
     ContextCheck -- "No" --> NoData["Return Friendly Fallback Message"]
     ContextCheck -- "Yes" --> BuildContext["Construct Context Blocks (Prior + Target + Subsequent)"]
     
-    BuildContext --> FinalLLM["Synthesize Final Response via Gemini"]
+    BuildContext --> ModelArmorPromptGeneration["Model Armor: Input Filter"]
+    ModelArmorPromptGeneration --> FinalLLM["Synthesize Final Response via Gemini"]
     NoData --> End
-    FinalLLM --> UpdateHist2["Update Chat History Memory"]
+    FinalLLM --> ModelArmorPromptGenerationOutput["Model Armor: Output Filter"]
+    ModelArmorPromptGenerationOutput --> UpdateHist2["Update Chat History Memory"]
     UpdateHist2 --> End
 
     %% Apply Classes
@@ -89,7 +93,13 @@ Role:
 Embedding Generator: Vectorizes incoming human-text queries via the VertexTextEmbedding provider, translating inputs into high-dimensional embedding vectors (768) for the native PostgreSQL pgvector cosine distance operator (<=>).
 
 
+## Guardrails 
 
+### Google Model Armor
+
+A service from google that designed to proactively screen LLM prompts and responses from various risks (e.g. role injection, exposing PII, content safety, etc.)
+
+https://docs.cloud.google.com/model-armor/overview
 
 
 ## ⚠️ Critical "Gotchas"
@@ -100,7 +110,7 @@ Embedding Generator: Vectorizes incoming human-text queries via the VertexTextEm
 * **Locally (Your Machine):** To connect to the live database from your terminal for debugging, you must initialize the **Cloud SQL Auth Proxy** loopback daemon utility locally:
 
 ```bash
-./cloud-sql-proxy PROJECT_ID:REGION:INSTANCE_ID --port 5432
+cloud-sql-proxy PROJECT_ID:REGION:DB_INSTANCE_NAME --port 5433
 ```
 
 
