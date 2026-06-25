@@ -1,4 +1,4 @@
-FROM python:3.11-sli
+FROM python:3.11-slim
 
 # Install system dependencies required for compiling psycopg2 if needed
 RUN apt-get update && apt-get install -y \
